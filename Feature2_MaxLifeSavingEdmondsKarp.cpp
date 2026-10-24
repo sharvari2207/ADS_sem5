@@ -1,8 +1,8 @@
 /**
  * =========================================================================================
  * FEATURE 2: Max Life Saving Blood Allocation using Edmonds-Karp Max-Flow Algorithm
- * Advanced Data Structures (ADS) Subject Project
- * Mapped to ER Diagram Entities: `blood_units` (blood_bank_id) & `blood_requests`
+ * Maximum flow optimization for patient blood transfusion allocation
+ * Solves compatibility flow network to save the maximum number of lives
  * =========================================================================================
  * 
  * Key Concepts:
@@ -281,13 +281,13 @@ int main() {
         {BloodGroup::AB_POS, 1}
     };
 
-    std::cout << "\n1. Current Available Blood Bank Stock (from ER: blood_units):\n";
+    std::cout << "\n1. Current Available Blood Bank Stock:\n";
     for (const auto& item : inventory) {
         std::cout << "   " << std::setw(6) << bloodGroupToString(item.first) 
                   << ": " << item.second << " units\n";
     }
 
-    // Patient requests from ER diagram
+    // Active patient transfusion demands
     std::vector<PatientDemand> requests = {
         {901, "Kavita Rao (Trauma)",        BloodGroup::AB_POS, 2},
         {902, "Master Aarush (Infant/ICU)", BloodGroup::O_NEG,  1},
@@ -297,7 +297,7 @@ int main() {
         {906, "Dattatray Shinde (Ortho)",   BloodGroup::O_POS,  1}
     };
 
-    std::cout << "\n2. Active Patient Requests (from ER: blood_requests):\n";
+    std::cout << "\n2. Active Patient Requests:\n";
     for (const auto& r : requests) {
         std::cout << "   Req #" << r.requestId << ": " << std::setw(28) << std::left << r.patientName 
                   << " | Needs: " << r.unitsNeeded << " units of " << bloodGroupToString(r.requiredGroup) << "\n";

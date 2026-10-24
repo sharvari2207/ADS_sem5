@@ -1,8 +1,8 @@
 /**
  * =========================================================================================
  * FEATURE 3: Directory Name Search & Autocomplete using Trie (Prefix Tree)
- * Advanced Data Structures (ADS) Subject Project
- * Mapped to ER Diagram Entities: `user` (donor/requester), `hospital`, `blood_bank`
+ * Fast prefix-based autocomplete lookup for people, hospitals, and blood banks
+ * Trie data structure with O(L) insertion and O(P + K) autocomplete search
  * =========================================================================================
  * 
  * Key Concepts:
@@ -149,8 +149,8 @@ int main() {
 
     BloodBankDirectoryTrie directory;
 
-    // Populating with ER diagram entities
-    // 1. Donors (user + donor + donor_health)
+    // Sample profiles for testing:
+    // 1. Registered donors
     directory.insert({"Donor", 1, "Aarav Deshmukh", "+91-9822011111", "O-",  "Kothrud, Pune", "Active"});
     directory.insert({"Donor", 2, "Sneha Kulkarni", "+91-9822022222", "A+",  "Shivajinagar, Pune", "Active"});
     directory.insert({"Donor", 3, "Rohan Shinde",   "+91-9822033333", "B+",  "Baner, Pune", "Active"});

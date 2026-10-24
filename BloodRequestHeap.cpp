@@ -1,9 +1,11 @@
 #include "BloodRequestHeap.h"
+#include <iostream>
 #include <iomanip>
 #include <algorithm>
 
 BloodRequestHeap::BloodRequestHeap() {}
 
+// Bubble up to restore max-heap property
 void BloodRequestHeap::heapifyUp(int index) {
     while (index > 0 && heap[index].dynamicScore > heap[parent(index)].dynamicScore) {
         std::swap(heap[index], heap[parent(index)]);
@@ -11,6 +13,7 @@ void BloodRequestHeap::heapifyUp(int index) {
     }
 }
 
+// Push down to restore max-heap property
 void BloodRequestHeap::heapifyDown(int index) {
     int maxIndex = index;
     int left = leftChild(index);
@@ -30,18 +33,22 @@ void BloodRequestHeap::heapifyDown(int index) {
     }
 }
 
-void BloodRequestHeap::insert(BloodRequest request) {
+// Enqueue new patient blood request
+void BloodRequestHeap::insert(BloodRequest request, bool silent) {
     request.calculateDynamicPriority();
     heap.push_back(request);
     heapifyUp(static_cast<int>(heap.size()) - 1);
-    std::cout << "[MaxHeap] Enqueued Request #" << request.requestId 
-              << " (" << request.patientName << ", " << bloodGroupToString(request.bloodGroup)
-              << ") with Dynamic Priority: " << std::fixed << std::setprecision(1) << request.dynamicScore << "\n";
+    if (!silent) {
+        std::cout << "[Priority Queue] Enqueued Request #" << request.requestId 
+                  << " (" << request.patientName << ", " << bloodGroupToString(request.bloodGroup)
+                  << ") with Priority Score: " << std::fixed << std::setprecision(1) << request.dynamicScore << "\n";
+    }
 }
 
+// Remove and return highest priority request
 BloodRequest BloodRequestHeap::extractMax() {
     if (heap.empty()) {
-        throw std::runtime_error("Cannot extractMax: Dynamic Max-Heap is empty!");
+        throw std::runtime_error("Priority Queue is empty!");
     }
 
     BloodRequest top = heap[0];
@@ -52,16 +59,17 @@ BloodRequest BloodRequestHeap::extractMax() {
         heapifyDown(0);
     }
 
-    std::cout << "[MaxHeap] Extracted Top Priority Request #" << top.requestId 
+    std::cout << "[Priority Queue] Dispatched Top Request #" << top.requestId 
               << " (" << top.patientName << ", Score: " << std::fixed << std::setprecision(1) << top.dynamicScore 
               << ", Urgency: " << urgencyLevelToString(top.baseUrgency) << ")\n";
 
     return top;
 }
 
+// View top priority request without removing
 BloodRequest BloodRequestHeap::peekMax() const {
     if (heap.empty()) {
-        throw std::runtime_error("Cannot peekMax: Dynamic Max-Heap is empty!");
+        throw std::runtime_error("Priority Queue is empty!");
     }
     return heap[0];
 }
@@ -74,6 +82,7 @@ size_t BloodRequestHeap::size() const {
     return heap.size();
 }
 
+// Find position of request in heap vector
 int BloodRequestHeap::findIndexById(int requestId) const {
     for (size_t i = 0; i < heap.size(); ++i) {
         if (heap[i].requestId == requestId) {
@@ -83,29 +92,44 @@ int BloodRequestHeap::findIndexById(int requestId) const {
     return -1;
 }
 
-// Simulates real-time aging: as minutes pass, waiting requests escalate dynamically!
+// Remove request by its unique ID (e.g. after fulfillment)
+bool BloodRequestHeap::removeById(int requestId) {
+    int idx = findIndexById(requestId);
+    if (idx == -1) return false;
+
+    // Replace with last element and restore heap
+    heap[idx] = heap.back();
+    heap.pop_back();
+
+    if (idx < static_cast<int>(heap.size())) {
+        heapifyDown(idx);
+        heapifyUp(idx);
+    }
+    return true;
+}
+
+// Escalate priorities as wait time increases
 void BloodRequestHeap::simulateTimeTick(int minutesPassed) {
-    std::cout << "\n>>> [MaxHeap Simulation] " << minutesPassed << " minutes passed in the Emergency Ward...\n";
+    std::cout << "\n>>> [Triage Aging] " << minutesPassed << " minutes elapsed in Emergency Ward...\n";
     for (auto& req : heap) {
         req.minutesWaited += minutesPassed;
         double oldScore = req.dynamicScore;
         req.calculateDynamicPriority();
         std::cout << "    Request #" << req.requestId << " (" << req.patientName 
-                  << "): Dynamic Score changed from " << oldScore << " -> " << req.dynamicScore << "\n";
+                  << "): Priority updated from " << oldScore << " -> " << req.dynamicScore << "\n";
     }
     rebuildHeap();
 }
 
+// Rebuild heap using Floyd's bottom-up method
 void BloodRequestHeap::rebuildHeap() {
-    // Floyd's O(N) heap construction algorithm
     int n = static_cast<int>(heap.size());
     for (int i = (n / 2) - 1; i >= 0; --i) {
         heapifyDown(i);
     }
-    std::cout << "[MaxHeap] Floyd's algorithm re-balanced heap dynamically. New Top: Request #" 
-              << (heap.empty() ? 0 : heap[0].requestId) << "\n";
 }
 
+// Update urgency level if patient condition changes
 bool BloodRequestHeap::updatePatientUrgency(int requestId, UrgencyLevel newLevel, bool isICU) {
     int idx = findIndexById(requestId);
     if (idx == -1) return false;
@@ -115,7 +139,7 @@ bool BloodRequestHeap::updatePatientUrgency(int requestId, UrgencyLevel newLevel
     double oldScore = heap[idx].dynamicScore;
     heap[idx].calculateDynamicPriority();
 
-    std::cout << "[MaxHeap] Updated Condition for Request #" << requestId 
+    std::cout << "[Priority Queue] Updated Condition for Request #" << requestId 
               << " (" << heap[idx].patientName << "): Score " << oldScore << " -> " << heap[idx].dynamicScore << "\n";
 
     if (heap[idx].dynamicScore > oldScore) {
@@ -126,6 +150,7 @@ bool BloodRequestHeap::updatePatientUrgency(int requestId, UrgencyLevel newLevel
     return true;
 }
 
+// Add wait minutes to a specific patient
 bool BloodRequestHeap::addWaitTime(int requestId, int additionalMinutes) {
     int idx = findIndexById(requestId);
     if (idx == -1) return false;
@@ -134,7 +159,7 @@ bool BloodRequestHeap::addWaitTime(int requestId, int additionalMinutes) {
     double oldScore = heap[idx].dynamicScore;
     heap[idx].calculateDynamicPriority();
 
-    std::cout << "[MaxHeap] Increased Wait Time for Request #" << requestId 
+    std::cout << "[Priority Queue] Increased Wait Time for Request #" << requestId 
               << " by " << additionalMinutes << " mins. Score: " << oldScore << " -> " << heap[idx].dynamicScore << "\n";
 
     if (heap[idx].dynamicScore > oldScore) {
@@ -145,9 +170,10 @@ bool BloodRequestHeap::addWaitTime(int requestId, int additionalMinutes) {
     return true;
 }
 
+// Display current queue table
 void BloodRequestHeap::printHeapTable() const {
     std::cout << "\n=========================================================================================\n";
-    std::cout << "                      CURRENT DYNAMIC URGENCY MAX-HEAP QUEUE                             \n";
+    std::cout << "                          CURRENT URGENCY PRIORITY QUEUE                                 \n";
     std::cout << "=========================================================================================\n";
     std::cout << std::left 
               << std::setw(5)  << "Pos"
@@ -158,26 +184,27 @@ void BloodRequestHeap::printHeapTable() const {
               << std::setw(20) << "Base Urgency"
               << std::setw(10) << "Wait(min)"
               << std::setw(8)  << "ICU/Age"
-              << std::setw(12) << "Dyn.Score" << "\n";
+              << std::setw(12) << "Priority" << "\n";
     std::cout << "-----------------------------------------------------------------------------------------\n";
 
     for (size_t i = 0; i < heap.size(); ++i) {
         const auto& r = heap[i];
         std::string extraInfo = (r.isICUorTrauma ? "ICU/" : "") + std::to_string(r.patientAge) + "y";
         std::cout << std::left 
-                  << std::setw(5)  << i
-                  << std::setw(8)  << r.requestId
-                  << std::setw(18) << r.patientName
-                  << std::setw(8)  << bloodGroupToString(r.bloodGroup)
-                  << std::setw(6)  << r.quantityRequested
-                  << std::setw(20) << urgencyLevelToString(r.baseUrgency)
-                  << std::setw(10) << r.minutesWaited
-                  << std::setw(8)  << extraInfo
-                  << std::setw(12) << std::fixed << std::setprecision(1) << r.dynamicScore << "\n";
+              << std::setw(5)  << i
+              << std::setw(8)  << r.requestId
+              << std::setw(18) << r.patientName
+              << std::setw(8)  << bloodGroupToString(r.bloodGroup)
+              << std::setw(6)  << r.quantityRequested
+              << std::setw(20) << urgencyLevelToString(r.baseUrgency)
+              << std::setw(10) << r.minutesWaited
+              << std::setw(8)  << extraInfo
+              << std::setw(12) << std::fixed << std::setprecision(1) << r.dynamicScore << "\n";
     }
     std::cout << "=========================================================================================\n";
 }
 
+// Print tree representation of the binary max-heap
 void BloodRequestHeap::printTreeStructure(int index, int depth) const {
     if (index >= static_cast<int>(heap.size())) return;
 
@@ -189,4 +216,3 @@ void BloodRequestHeap::printTreeStructure(int index, int depth) const {
 
     printTreeStructure(leftChild(index), depth + 1);
 }
-

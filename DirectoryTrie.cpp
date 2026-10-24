@@ -6,6 +6,7 @@ DirectoryTrie::DirectoryTrie() : totalRecords(0) {
     root = std::make_shared<TrieNode>();
 }
 
+// Convert input string to lowercase and strip special characters
 std::string DirectoryTrie::normalize(const std::string& str) const {
     std::string clean = "";
     for (char ch : str) {
@@ -16,6 +17,7 @@ std::string DirectoryTrie::normalize(const std::string& str) const {
     return clean;
 }
 
+// Add a directory profile into the trie
 void DirectoryTrie::insert(const DirectoryRecord& record) {
     std::string key = normalize(record.name);
     if (key.empty()) return;
@@ -33,13 +35,14 @@ void DirectoryTrie::insert(const DirectoryRecord& record) {
     totalRecords++;
 }
 
+// Search for exact match
 std::vector<DirectoryRecord> DirectoryTrie::searchExact(const std::string& name) const {
     std::string key = normalize(name);
     auto current = root;
 
     for (char ch : key) {
         if (current->children.find(ch) == current->children.end()) {
-            return {}; // Not found
+            return {};
         }
         current = current->children[ch];
     }
@@ -50,6 +53,7 @@ std::vector<DirectoryRecord> DirectoryTrie::searchExact(const std::string& name)
     return {};
 }
 
+// Collect all matching profiles under current prefix node
 void DirectoryTrie::collectAllWords(std::shared_ptr<TrieNode> node, 
                                    std::vector<DirectoryRecord>& results, 
                                    int maxLimit) const {
@@ -62,13 +66,13 @@ void DirectoryTrie::collectAllWords(std::shared_ptr<TrieNode> node,
         }
     }
 
-    // Traverse children
     for (auto& pair : node->children) {
         collectAllWords(pair.second, results, maxLimit);
         if (static_cast<int>(results.size()) >= maxLimit) return;
     }
 }
 
+// Autocomplete prefix search
 std::vector<DirectoryRecord> DirectoryTrie::autocomplete(const std::string& prefix, int maxLimit) const {
     std::string key = normalize(prefix);
     std::vector<DirectoryRecord> results;
@@ -76,16 +80,16 @@ std::vector<DirectoryRecord> DirectoryTrie::autocomplete(const std::string& pref
     auto current = root;
     for (char ch : key) {
         if (current->children.find(ch) == current->children.end()) {
-            return results; // No words match this prefix
+            return results;
         }
         current = current->children[ch];
     }
 
-    // From current prefix node, collect all completions
     collectAllWords(current, results, maxLimit);
     return results;
 }
 
+// Display single directory record
 void DirectoryTrie::printRecordCard(const DirectoryRecord& rec) {
     std::cout << "  [" << roleToString(rec.role) << " #" << rec.entityId << "] " 
               << rec.name;
@@ -100,6 +104,7 @@ void DirectoryTrie::printRecordCard(const DirectoryRecord& rec) {
     std::cout << "\n";
 }
 
+// Print autocomplete search results to console
 void DirectoryTrie::printAutocompleteResults(const std::string& prefix, int maxLimit) const {
     std::cout << "\n--- Autocomplete Search for Prefix: \"" << prefix << "\" ---\n";
     auto results = autocomplete(prefix, maxLimit);
@@ -115,4 +120,3 @@ void DirectoryTrie::printAutocompleteResults(const std::string& prefix, int maxL
         printRecordCard(results[i]);
     }
 }
-

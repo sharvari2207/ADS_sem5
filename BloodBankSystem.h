@@ -9,9 +9,10 @@
 #include <map>
 #include <string>
 
+// Central system coordinator for donors, receivers, and hospital authority
 class BloodBankSystem {
 private:
-    // ER Diagram Tables
+    // Core database records
     std::vector<User> users;
     std::vector<Donor> donors;
     std::vector<Requester> requesters;
@@ -25,55 +26,63 @@ private:
     std::vector<BloodUnit> bloodUnits;
     std::vector<BloodRequest> bloodRequests;
 
-    // Advanced Data Structures
+    // Advanced Data Structure engines
     BloodRequestHeap requestMaxHeap;
     MaxLifeSavingEdmondsKarp maxFlowSolver;
     DirectoryTrie directoryTrie;
 
-    // Helper to seed realistic data based on ER diagram
-    void seedERData();
+    // Populate initial system data
+    void seedInitialData();
 
 public:
     BloodBankSystem();
 
-    // ADS Feature Accessors
+    // Data structure accessors
     BloodRequestHeap& getHeap() { return requestMaxHeap; }
     MaxLifeSavingEdmondsKarp& getMaxFlowSolver() { return maxFlowSolver; }
     DirectoryTrie& getDirectoryTrie() { return directoryTrie; }
 
-    // Option 1: Donor Workflow (Donate Blood)
+    // Option 1: Donor Registration & Blood Donation
     void donorPortalWorkflow();
 
-    // Option 2: Receiver Workflow (Request Blood Units with Urgency)
+    // Option 2: Patient Blood Request & Urgency Triage
     void receiverPortalWorkflow();
 
-    // Option 3: Hospital Portal (Restricted with Password "Blood2026")
+    // Option 3: Hospital Central Workstation (Password: "Blood2026")
     bool verifyHospitalPassword(const std::string& password) const;
     void runHospitalDashboard();
 
-    // Hospital sub-features & ADS implementations:
-    // Feature 1: Urgency MaxHeap Management
+    // Hospital Authority Request Operations:
+    // Review pending requests, verify inventory, dispense units, and mark as DONE
+    void manageReceiverRequests();
+    void acceptAndFulfillRequest(int requestId);
+    void autoFulfillTopUrgentRequest();
+    void autoFulfillAllAvailableRequests();
+    void displayBloodInventorySummary() const;
+
+    // Feature 1: Urgency Priority Queue (Max-Heap)
     void runHeapInteractiveDemo();
     void addNewBloodRequest(const BloodRequest& req);
     void processNextUrgentRequest();
     void simulateTimePassage(int minutes);
 
-    // Feature 2: Max Life Saving Allocation using Edmonds-Karp
+    // Feature 2: Max Life-Saving Allocation (Edmonds-Karp Max Flow)
     void runMaxLifeSavingEdmondsKarpDemo();
 
-    // Feature 3: Trie Directory Autocomplete Search
+    // Feature 3: Fast Directory Search (Trie Prefix Autocomplete)
     void runTrieAutocompleteDemo();
     void searchDirectoryInteractive();
 
-    // Comprehensive ER Database Records
-    void displayERDatabaseStats() const;
+    // Central records and inventories
+    void displayDatabaseStats() const;
+    void displayERDatabaseStats() const { displayDatabaseStats(); } // Backward compatibility
     void displayAllDonorsWithHealth() const;
     void displayAllReceiversAndRequests() const;
     void displayAllBloodUnits() const;
     void displayAllDonations() const;
     void displayAllAppointmentsAndTests() const;
     
-    // Automated end-to-end ADS test suite
+    // Automated end-to-end verification tests
     void runAllADSTests();
 };
 

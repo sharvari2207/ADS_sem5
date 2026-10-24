@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iomanip>
 
-// Standard blood groups
+// Standard blood groups supported by the blood bank
 enum class BloodGroup {
     O_NEG, O_POS,
     A_NEG, A_POS,
@@ -41,7 +41,7 @@ inline BloodGroup stringToBloodGroup(const std::string& str) {
     return BloodGroup::UNKNOWN;
 }
 
-// Checks if donor blood can be given to recipient
+// Check if donor blood group is clinically compatible with recipient
 inline bool isBloodCompatible(BloodGroup donor, BloodGroup recipient) {
     if (donor == BloodGroup::O_NEG) return true; // Universal donor
     if (recipient == BloodGroup::AB_POS) return true; // Universal recipient
@@ -69,7 +69,7 @@ inline bool isBloodCompatible(BloodGroup donor, BloodGroup recipient) {
     return (donor == recipient);
 }
 
-// Base user account
+// User account profile
 struct User {
     int userId;
     std::string name;
@@ -100,7 +100,7 @@ struct Requester {
     std::string hospitalName;
 };
 
-// Medical fitness details for a donor
+// Donor health and fitness assessment
 struct DonorHealth {
     int healthId;
     int donorId;
@@ -113,12 +113,13 @@ struct DonorHealth {
     std::string lastDonationDate;
     std::string addiction;
 
+    // Donor eligibility check (weight >= 45kg, no surgery within 6 months, no drugs)
     bool isFitToDonate() const {
         return (weight >= 45.0 && !recentSurgery && medications == "None");
     }
 };
 
-// Hospital facility
+// Hospital center
 struct Hospital {
     int hospitalId;
     std::string name;
@@ -136,7 +137,7 @@ struct BloodBank {
     std::string address;
 };
 
-// Donor visit appointment
+// Scheduled donor appointment
 struct Appointment {
     int applicationId;
     int donorId;
@@ -146,7 +147,7 @@ struct Appointment {
     std::string status;
 };
 
-// Pre-donation screening test
+// Medical screening test results
 struct MedicalTest {
     int testId;
     int donorId;
@@ -157,7 +158,7 @@ struct MedicalTest {
     std::string remarks;
 };
 
-// Scheduled blood draw appointment
+// Blood collection session details
 struct DonationAppointment {
     int donationApptId;
     int donorId;
@@ -168,7 +169,7 @@ struct DonationAppointment {
     std::string createdAt;
 };
 
-// Record of completed donation
+// Blood donation entry
 struct Donation {
     int donationId;
     int hospitalId;
@@ -184,7 +185,7 @@ struct Donation {
           quality(qual), bloodGroup(bg), screeningStatus(screen) {}
 };
 
-// Individual blood unit packet stored in blood bank
+// Blood unit packet stored in blood bank
 struct BloodUnit {
     int unitId;
     int bloodBankId;
@@ -193,11 +194,11 @@ struct BloodUnit {
     BloodGroup bloodGroup;
     std::string collectionDate;
     std::string expiryDate;
-    std::string status;     // "Available", "Allocated", "Expired"
+    std::string status;     // "Available", "Allocated to Patient...", "Expired"
     std::string testStatus; // "Tested-Safe", "Pending"
 };
 
-// Priority categories for patient urgency
+// Clinical urgency categories for patient requests
 enum class UrgencyLevel {
     ROUTINE = 1,
     MODERATE = 2,
@@ -215,7 +216,7 @@ inline std::string urgencyLevelToString(UrgencyLevel ul) {
     }
 }
 
-// Patient blood request placed by hospital or receiver
+// Patient blood transfusion request
 struct BloodRequest {
     int requestId;
     int requesterId;
@@ -242,7 +243,7 @@ struct BloodRequest {
         calculateDynamicPriority();
     }
 
-    // Calculates priority score considering urgency and wait time
+    // Calculate dynamic priority score using urgency, wait time, and clinical factors
     double calculateDynamicPriority() {
         double score = 0.0;
         switch (baseUrgency) {
@@ -252,7 +253,7 @@ struct BloodRequest {
             case UrgencyLevel::ROUTINE:  score += 100.0; break;
         }
 
-        // Add points for time waited to avoid starvation
+        // Increase score as patient waits to prevent starvation
         score += (minutesWaited * 5.0);
 
         if (isICUorTrauma) score += 200.0;

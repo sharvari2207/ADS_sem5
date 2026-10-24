@@ -8,21 +8,7 @@
 #include <memory>
 #include <iostream>
 
-/**
- * FEATURE 3: Name Directory Search & Autocomplete using Trie
- * 
- * Context in Advance Data Structures:
- * - A Trie (Prefix Tree) is used for fast autocomplete and prefix-based directory lookup.
- * - Time Complexity:
- *   - Insertion: O(L) where L = length of name
- *   - Prefix Search: O(P + K) where P = prefix length, K = number of matching descendants
- * - Stores entities from the ER Diagram:
- *   - Donors (with Donor ID, Blood Group, Eligibility, Phone)
- *   - Requesters / Patients (with Requester ID, Hospital)
- *   - Hospitals (with Hospital ID, Phone, City)
- *   - Blood Banks (with Blood Bank ID, Contact)
- */
-
+// Prefix tree (Trie) for autocomplete search across people, hospitals, and blood banks
 enum class DirectoryRole {
     DONOR,
     REQUESTER,
@@ -40,6 +26,7 @@ inline std::string roleToString(DirectoryRole r) {
     }
 }
 
+// Directory entry card
 struct DirectoryRecord {
     DirectoryRole role;
     int entityId;
@@ -48,14 +35,14 @@ struct DirectoryRecord {
     std::string email;
     BloodGroup bloodGroup; // for donors & requesters
     std::string address;
-    std::string extraInfo; // e.g. "Active Donor", "Apollo Hospital", etc.
+    std::string extraInfo; // e.g. "Active Donor", "Sahyadri Hospital"
 };
 
+// Node in the prefix trie
 struct TrieNode {
-    // Hash map or array for children characters
     std::unordered_map<char, std::shared_ptr<TrieNode>> children;
     bool isEndOfWord;
-    std::vector<DirectoryRecord> records; // Can have multiple entities with same name!
+    std::vector<DirectoryRecord> records; // Stores matching profiles for identical prefixes
 
     TrieNode() : isEndOfWord(false) {}
 };
@@ -65,7 +52,7 @@ private:
     std::shared_ptr<TrieNode> root;
     size_t totalRecords;
 
-    // Helper functions
+    // Helper routines
     std::string normalize(const std::string& str) const;
     void collectAllWords(std::shared_ptr<TrieNode> node, 
                          std::vector<DirectoryRecord>& results, 
@@ -74,18 +61,17 @@ private:
 public:
     DirectoryTrie();
 
-    // Insertion
+    // Insert new profile
     void insert(const DirectoryRecord& record);
 
     // Search operations
     std::vector<DirectoryRecord> searchExact(const std::string& name) const;
     std::vector<DirectoryRecord> autocomplete(const std::string& prefix, int maxLimit = 10) const;
 
-    // Utility & Displays
+    // Summary and display
     size_t size() const { return totalRecords; }
     void printAutocompleteResults(const std::string& prefix, int maxLimit = 10) const;
     static void printRecordCard(const DirectoryRecord& rec);
 };
 
 #endif // DIRECTORY_TRIE_H
-

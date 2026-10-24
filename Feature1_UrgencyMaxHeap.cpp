@@ -1,8 +1,8 @@
 /**
  * =========================================================================================
  * FEATURE 1: Blood Request Urgency Management using Dynamic Priority Max-Heap
- * Advanced Data Structures (ADS) Subject Project
- * Mapped to ER Diagram Entity: `blood_requests` (request_id, requester_id, urgency, status)
+ * Priority Queue implementation for patient transfusion requests
+ * Dynamic triage scoring considering urgency, wait times, and clinical conditions
  * =========================================================================================
  * 
  * Key Concepts:
@@ -64,7 +64,7 @@ inline std::string urgencyLevelToString(UrgencyLevel ul) {
     }
 }
 
-// ER Diagram Model: blood_requests
+// Patient blood request model
 struct BloodRequest {
     int requestId;
     int requesterId;

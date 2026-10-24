@@ -15,6 +15,7 @@ MaxLifeSavingEdmondsKarp::MaxLifeSavingEdmondsKarp()
     };
 }
 
+// Build flow network with source, blood groups, patient demands, and sink
 void MaxLifeSavingEdmondsKarp::buildNetwork(const std::map<BloodGroup, int>& inventory, 
                                           const std::vector<BloodRequest>& activeRequests) {
     groupToNode.clear();
@@ -22,10 +23,9 @@ void MaxLifeSavingEdmondsKarp::buildNetwork(const std::map<BloodGroup, int>& inv
     requestToNode.clear();
     nodeToRequest.clear();
 
-    // Source = node 0
     sourceNode = 0;
 
-    // 8 Supply Nodes: node 1 to 8 (one for each blood group)
+    // Blood group supply nodes (1 to 8)
     int currentNode = 1;
     for (auto bg : bloodGroupTypes) {
         groupToNode[bg] = currentNode;
@@ -33,23 +33,22 @@ void MaxLifeSavingEdmondsKarp::buildNetwork(const std::map<BloodGroup, int>& inv
         currentNode++;
     }
 
-    // Demand Nodes: one for each patient request
+    // Patient demand nodes
     for (const auto& req : activeRequests) {
         requestToNode[req.requestId] = currentNode;
         nodeToRequest[currentNode] = req;
         currentNode++;
     }
 
-    // Sink Node
     sinkNode = currentNode;
     totalNodes = sinkNode + 1;
 
-    // Initialize capacity and flow matrices
+    // Allocate graph matrices
     capacity.assign(totalNodes, std::vector<int>(totalNodes, 0));
     flow.assign(totalNodes, std::vector<int>(totalNodes, 0));
     adj.assign(totalNodes, std::vector<int>());
 
-    // 1. Edges from Source -> Blood Group Supply nodes
+    // 1. Edges: Source -> Blood Group nodes (capacity = available units)
     for (auto bg : bloodGroupTypes) {
         int u = groupToNode[bg];
         int availableUnits = 0;
@@ -60,38 +59,37 @@ void MaxLifeSavingEdmondsKarp::buildNetwork(const std::map<BloodGroup, int>& inv
 
         capacity[sourceNode][u] = availableUnits;
         adj[sourceNode].push_back(u);
-        adj[u].push_back(sourceNode); // reverse edge for residual graph
+        adj[u].push_back(sourceNode); // Residual reverse edge
     }
 
-    // 2. Edges from Blood Group Supply nodes -> Compatible Patient Request nodes
+    // 2. Edges: Blood Group nodes -> Compatible Patient nodes
     for (auto donorBg : bloodGroupTypes) {
         int u = groupToNode[donorBg];
         for (const auto& req : activeRequests) {
             if (isBloodCompatible(donorBg, req.bloodGroup)) {
                 int v = requestToNode[req.requestId];
-                // Capacity is bounded by requested quantity
                 capacity[u][v] = req.quantityRequested;
                 adj[u].push_back(v);
-                adj[v].push_back(u); // reverse edge
+                adj[v].push_back(u);
             }
         }
     }
 
-    // 3. Edges from Patient Request nodes -> Sink
+    // 3. Edges: Patient nodes -> Sink (capacity = demand)
     for (const auto& req : activeRequests) {
         int v = requestToNode[req.requestId];
         capacity[v][sinkNode] = req.quantityRequested;
         adj[v].push_back(sinkNode);
-        adj[sinkNode].push_back(v); // reverse edge
+        adj[sinkNode].push_back(v);
     }
 }
 
-// BFS augmenting path search
+// Search for an augmenting path using BFS (shortest hop count)
 bool MaxLifeSavingEdmondsKarp::bfsAugmentingPath(std::vector<int>& parentPath, int& bottleneckCapacity) {
     std::fill(parentPath.begin(), parentPath.end(), -1);
     parentPath[sourceNode] = -2;
 
-    std::queue<std::pair<int, int>> q; // {currentNode, currentFlowBottleNeck}
+    std::queue<std::pair<int, int>> q;
     q.push({sourceNode, INF});
 
     while (!q.empty()) {
@@ -116,6 +114,7 @@ bool MaxLifeSavingEdmondsKarp::bfsAugmentingPath(std::vector<int>& parentPath, i
     return false;
 }
 
+// Compute maximum lifesaving flow using Edmonds-Karp
 AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool verbose) {
     if (verbose) {
         std::cout << "\n=========================================================================================\n";
@@ -128,14 +127,14 @@ AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool v
     int iteration = 0;
     int bottleneck = 0;
 
-    // Edmonds-Karp Loop: BFS for shortest augmenting path
+    // Augment flow until no path exists in residual network
     while (bfsAugmentingPath(parent, bottleneck)) {
         iteration++;
         maxFlow += bottleneck;
 
         if (verbose) {
-            std::cout << "  Iteration #" << iteration << ": Found BFS Augmenting Path with Bottleneck = " 
-                      << bottleneck << " units\n    Path: ";
+            std::cout << "  Iteration #" << iteration << ": Found Augmenting Path with Bottleneck = " 
+                      << bottleneck << " unit(s)\n    Path: ";
             std::vector<int> pathTrace;
             for (int v = sinkNode; v != sourceNode; v = parent[v]) {
                 pathTrace.push_back(v);
@@ -157,7 +156,7 @@ AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool v
             std::cout << "\n";
         }
 
-        // Augment flow and adjust residual capacities
+        // Adjust flow and reverse residual capacity
         for (int v = sinkNode; v != sourceNode; v = parent[v]) {
             int u = parent[v];
             flow[u][v] += bottleneck;
@@ -166,18 +165,17 @@ AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool v
     }
 
     if (verbose) {
-        std::cout << "\n>>> [Edmonds-Karp Complete] No more augmenting paths in residual graph.\n";
-        std::cout << ">>> Total Maximum Flow (Total Units Allocated): " << maxFlow << "\n";
+        std::cout << "\n>>> [Edmonds-Karp Complete] Max flow achieved.\n";
+        std::cout << ">>> Total Units Allocated: " << maxFlow << " unit(s)\n";
     }
 
-    // Compile Allocation Results
+    // Assemble allocation result summary
     AllocationResult result;
     result.totalUnitsAllocated = maxFlow;
     result.fullySatisfiedPatients = 0;
     result.partiallySatisfiedPatients = 0;
     result.unsatisfiedPatients = 0;
 
-    // Check request allocations
     for (const auto& pair : requestToNode) {
         int reqId = pair.first;
         int v = pair.second;
@@ -202,7 +200,7 @@ AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool v
         }
     }
 
-    // Calculate remaining inventory
+    // Tally remaining stock
     for (auto bg : bloodGroupTypes) {
         int u = groupToNode[bg];
         int initialSupply = capacity[sourceNode][u];
@@ -213,15 +211,16 @@ AllocationResult MaxLifeSavingEdmondsKarp::computeMaxLifeSavingAllocation(bool v
     return result;
 }
 
+// Display network connectivity
 void MaxLifeSavingEdmondsKarp::printNetworkStructure() const {
-    std::cout << "\n--- Bipartite Compatibility Flow Network Structure ---\n";
-    std::cout << "Source (Node " << sourceNode << ") connects to Blood Group Supply nodes.\n";
+    std::cout << "\n--- Compatibility Flow Network Structure ---\n";
+    std::cout << "Source (Node " << sourceNode << ") connects to Blood Group Supply nodes:\n";
     for (auto bg : bloodGroupTypes) {
         auto it = groupToNode.find(bg);
         if (it != groupToNode.end()) {
             int u = it->second;
             std::cout << "  - Supply Node " << u << " [" << bloodGroupToString(bg) 
-                      << "] Initial Capacity: " << capacity[sourceNode][u] << " units\n";
+                      << "] Initial Stock: " << capacity[sourceNode][u] << " units\n";
         }
     }
     std::cout << "Patient Request Nodes connect to Sink (Node " << sinkNode << "):\n";
@@ -234,6 +233,7 @@ void MaxLifeSavingEdmondsKarp::printNetworkStructure() const {
     }
 }
 
+// Format and display allocation table
 void MaxLifeSavingEdmondsKarp::printAllocationSummary(const AllocationResult& result, 
                                                     const std::vector<BloodRequest>& requests) {
     std::cout << "\n=========================================================================================\n";
@@ -290,4 +290,3 @@ void MaxLifeSavingEdmondsKarp::printAllocationSummary(const AllocationResult& re
     }
     std::cout << "=========================================================================================\n";
 }
-
