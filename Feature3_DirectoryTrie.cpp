@@ -1,24 +1,4 @@
-/**
- * =========================================================================================
- * FEATURE 3: Directory Name Search & Autocomplete using Trie (Prefix Tree)
- * Fast prefix-based autocomplete lookup for people, hospitals, and blood banks
- * Trie data structure with O(L) insertion and O(P + K) autocomplete search
- * =========================================================================================
- * 
- * Key Concepts:
- * 1. Trie Data Structure:
- *      - Tree where each node corresponds to a character of a name.
- *      - Shared prefixes save space and enable instant autocomplete suggestions.
- * 2. Time Complexity:
- *      - Insert a Name: O(L) where L is name length.
- *      - Prefix Search: O(P + K) where P is prefix length and K is number of matched entities.
- *      - Significant speedup over O(N * L) linear scan on large directories!
- * 3. Case-Insensitive Prefix Autocomplete:
- *      - Searching "aa" suggests "Aarav Deshmukh (Donor)".
- *      - Searching "dr" suggests "Dr. Rajesh Patil", "Dr. Ananya Sen", "Dr. Amit Verma".
- *      - Searching "sa" suggests "Sahyadri Hospital".
- * =========================================================================================
- */
+
 
 #include <iostream>
 #include <string>
@@ -143,9 +123,8 @@ public:
 };
 
 int main() {
-    std::cout << "=======================================================================\n";
+    std::cout << "\n";
     std::cout << "   FEATURE 3 DEMO: TRIE DIRECTORY AUTOCOMPLETE & PREFIX SEARCH         \n";
-    std::cout << "=======================================================================\n";
 
     BloodBankDirectoryTrie directory;
 

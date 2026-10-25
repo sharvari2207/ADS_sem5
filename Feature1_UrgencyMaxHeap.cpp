@@ -1,26 +1,4 @@
-/**
- * =========================================================================================
- * FEATURE 1: Blood Request Urgency Management using Dynamic Priority Max-Heap
- * Priority Queue implementation for patient transfusion requests
- * Dynamic triage scoring considering urgency, wait times, and clinical conditions
- * =========================================================================================
- * 
- * Key Concepts:
- * 1. Max-Heap Property: Parent key is always >= child keys.
- * 2. Dynamic Priority: Priority is not static. It increases dynamically as:
- *      Dynamic Priority = Base Urgency (Critical=1000, Urgent=700, Moderate=400, Routine=100)
- *                       + (Minutes Waited * 5)  [Prevents starvation of waiting patients]
- *                       + Clinical Trauma/ICU bonus (+200)
- *                       + Vulnerable Age (<10 or >65 years: +150)
- *                       + Rare Blood Type bonus (O-, AB-: +50)
- * 3. Heap Operations:
- *      - insert()         : O(log N)
- *      - extractMax()     : O(log N)
- *      - heapifyUp()      : O(log N)
- *      - heapifyDown()    : O(log N)
- *      - rebuildHeap()    : O(N) using Floyd's Algorithm after time elapsed
- * =========================================================================================
- */
+
 
 #include <iostream>
 #include <vector>
@@ -176,9 +154,9 @@ public:
     }
 
     void printTable() const {
-        std::cout << "\n=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "                   DYNAMIC PRIORITY MAX-HEAP: ACTIVE BLOOD REQUESTS                      \n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         std::cout << std::left 
                   << std::setw(5)  << "Pos"
                   << std::setw(8)  << "ReqID"
@@ -188,7 +166,7 @@ public:
                   << std::setw(22) << "Base Urgency"
                   << std::setw(10) << "Wait(m)"
                   << std::setw(12) << "Dyn.Score" << "\n";
-        std::cout << "-----------------------------------------------------------------------------------------\n";
+        std::cout << "\n";
         for (size_t i = 0; i < heap.size(); ++i) {
             const auto& r = heap[i];
             std::cout << std::left 
@@ -201,7 +179,7 @@ public:
                       << std::setw(10) << r.minutesWaited
                       << std::setw(12) << std::fixed << std::setprecision(1) << r.dynamicScore << "\n";
         }
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
     }
 
     void printTree(int idx = 0, int depth = 0) const {
@@ -215,9 +193,7 @@ public:
 };
 
 int main() {
-    std::cout << "=======================================================================\n";
-    std::cout << "   FEATURE 1 DEMO: DYNAMIC PRIORITY MAX-HEAP FOR BLOOD REQUEST URGENCY  \n";
-    std::cout << "=======================================================================\n\n";
+   std::cout << "   FEATURE 1 DEMO: DYNAMIC PRIORITY MAX-HEAP FOR BLOOD REQUEST URGENCY  \n";
 
     BloodRequestMaxHeap heap;
 
@@ -246,7 +222,7 @@ int main() {
                   << " | Dynamic Score: " << top.dynamicScore << "\n";
     }
 
-    std::cout << "\n>>> Feature 1 Demo Complete! <<<\n";
+    std::cout << "\n Feature 1 Demo Complete!\n";
     return 0;
 }
 

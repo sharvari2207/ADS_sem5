@@ -146,16 +146,12 @@ void BloodBankSystem::seedInitialData() {
     }
 }
 
-// -----------------------------------------------------------------------------------
 // OPTION 1: DONOR PORTAL (PERSON WHO WANTS TO DONATE BLOOD)
-// -----------------------------------------------------------------------------------
 void BloodBankSystem::donorPortalWorkflow() {
-    std::cout << "\n=========================================================================================\n";
-    std::cout << "                 WELCOME TO THE BLOOD DONOR REGISTRATION & DONATION PORTAL               \n";
-    std::cout << "                    Donor Registration, Health Check & Donation Desk                     \n";
-    std::cout << "=========================================================================================\n";
-    std::cout << "Thank you for your noble decision to donate blood and save lives!\n";
-    std::cout << "Please fill out the donor information and mandatory health screening form.\n\n";
+    std::cout << "\n";
+    std::cout << "WELCOME TO THE BLOOD DONOR REGISTRATION & DONATION PORTAL               \n";
+    std::cout << "Donor Registration, Health Check & Donation Desk                     \n\n";
+    std::cout << "Please fill out the donor information\n";
 
     std::string name, phone, email, address, bgStr, medications, illness, addiction;
     int age;
@@ -225,9 +221,9 @@ void BloodBankSystem::donorPortalWorkflow() {
     // Add profile to directory trie
     directoryTrie.insert({DirectoryRole::DONOR, newDonorId, name, phone, email, bg, address, "Registered Donor"});
 
-    std::cout << "\n-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
     if (isEligible) {
-        std::cout << ">>> CONGRATULATIONS! Medical Screening PASSED! You are ELIGIBLE to donate blood. <<<\n";
+        std::cout << "Medical Screening PASSED! You are ELIGIBLE to donate blood. <<<\n";
         
         int newApptId = 300 + static_cast<int>(appointments.size()) + 1;
         int newTestId = 400 + static_cast<int>(medicalTests.size()) + 1;
@@ -256,19 +252,15 @@ void BloodBankSystem::donorPortalWorkflow() {
         if (medications != "None" && medications != "none") std::cout << "  - Active medications require physician clearance.\n";
         std::cout << "  Your status has been recorded as 'Temporary Deferred' for your safety.\n";
     }
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
-// -----------------------------------------------------------------------------------
 // OPTION 2: RECEIVER PORTAL (PATIENT BLOOD TRANSFUSION REQUEST)
-// -----------------------------------------------------------------------------------
 void BloodBankSystem::receiverPortalWorkflow() {
-    std::cout << "\n=========================================================================================\n";
-    std::cout << "              WELCOME TO THE PATIENT / BLOOD RECEIVER REQUEST PORTAL                     \n";
-    std::cout << "               Submit Blood Transfusion Requirements & Emergency Requests                \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
+    std::cout << "WELCOME TO THE PATIENT / BLOOD RECEIVER REQUEST PORTAL                     \n";
+    std::cout << "Submit Blood Transfusion Requirements & Emergency Requests                \n";
     std::cout << "Please enter the patient blood request details and clinical urgency level.\n";
-    std::cout << "Your request will be prioritized dynamically based on medical urgency and wait time.\n\n";
 
     std::string patientName, hospitalName, phone, bgStr;
     int age, unitsNeeded, urgChoice, waitMins;
@@ -298,7 +290,7 @@ void BloodBankSystem::receiverPortalWorkflow() {
     std::cin >> unitsNeeded;
     if (unitsNeeded < 1) unitsNeeded = 1;
 
-    std::cout << "\n--- Urgency & Clinical Triage Evaluation ---\n";
+    std::cout << "\n Urgency & Clinical Triage Evaluation\n";
     std::cout << "  [1] Routine   : Elective surgery, planned deficiency correction\n";
     std::cout << "  [2] Moderate  : Subacute medical care, chronic transfusion\n";
     std::cout << "  [3] Urgent    : ICU admission, acute bleeding, severe anemia\n";
@@ -336,8 +328,8 @@ void BloodBankSystem::receiverPortalWorkflow() {
     // Index in directory trie
     directoryTrie.insert({DirectoryRole::REQUESTER, newReqrId, patientName, phone, "", bg, hospitalName, "Patient Request #" + std::to_string(newReqId)});
 
-    std::cout << "\n-----------------------------------------------------------------------------------------\n";
-    std::cout << ">>> BLOOD REQUEST SUBMITTED & ENQUEUED IN PRIORITY QUEUE! <<<\n";
+    std::cout << "\n";
+    std::cout << " BLOOD REQUEST SUBMITTED & ENQUEUED IN PRIORITY QUEUE! <<<\n";
     std::cout << "  Request ID:           #" << req.requestId << "\n";
     std::cout << "  Patient Name:         " << req.patientName << " (Age: " << age << ")\n";
     std::cout << "  Required Blood Group: " << bloodGroupToString(bg) << " (" << unitsNeeded << " units)\n";
@@ -345,28 +337,23 @@ void BloodBankSystem::receiverPortalWorkflow() {
     std::cout << "  Dynamic Priority:     " << std::fixed << std::setprecision(1) << req.dynamicScore << " points\n";
     std::cout << "  Status:               Pending (Awaiting Hospital Authority review & dispensing)\n";
     std::cout << "  Hospital Authority can now review, verify blood stock, and dispense matching units.\n";
-    std::cout << "=========================================================================================\n";
 }
 
-// -----------------------------------------------------------------------------------
 // OPTION 3: HOSPITAL CENTRAL HUB (PASSWORD RESTRICTED: "Blood2026")
-// -----------------------------------------------------------------------------------
 bool BloodBankSystem::verifyHospitalPassword(const std::string& password) const {
     return (password == "Blood2026");
 }
 
 // Display blood stock inventory grouped by blood group
 void BloodBankSystem::displayBloodInventorySummary() const {
-    std::cout << "\n=========================================================================================\n";
     std::cout << "               CENTRAL BLOOD BANK STORAGE INVENTORY: STOCK SUMMARY                       \n";
-    std::cout << "=========================================================================================\n";
     std::cout << std::left 
               << std::setw(14) << "Blood Group"
               << std::setw(18) << "Available Units"
               << std::setw(18) << "Allocated Units"
               << std::setw(14) << "Total Stock"
               << "Inventory Status\n";
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
 
     std::vector<BloodGroup> groups = {
         BloodGroup::O_NEG, BloodGroup::O_POS,
@@ -401,11 +388,11 @@ void BloodBankSystem::displayBloodInventorySummary() const {
                   << std::setw(14) << (std::to_string(avail + alloc) + " units")
                   << statusTag << "\n";
     }
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
     std::cout << "  TOTAL READY-TO-DISPENSE UNITS : " << grandAvailable << " units\n";
     std::cout << "  TOTAL PREVIOUSLY ALLOCATED    : " << grandAllocated << " units\n";
     std::cout << "  TOTAL UNITS HANDLED           : " << (grandAvailable + grandAllocated) << " units\n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Accept a receiver's request, check blood availability, dispense blood units, and mark as DONE
@@ -432,9 +419,9 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
         return;
     }
 
-    std::cout << "\n=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "            HOSPITAL AUTHORITY: REVIEWING RECEIVER REQUEST #" << req.requestId << "\n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "  Patient Name:          " << req.patientName << " (Age: " << req.patientAge << ")\n";
     std::cout << "  Admitted Hospital:     " << (req.requesterId <= (int)requesters.size() ? requesters[req.requesterId - 1].hospitalName : "City Hospital") << "\n";
     std::cout << "  Required Blood Group:  " << bloodGroupToString(req.bloodGroup) << "\n";
@@ -442,7 +429,7 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
     std::cout << "  Urgency / Triage:      " << urgencyLevelToString(req.baseUrgency) << "\n";
     std::cout << "  Minutes Waited:        " << req.minutesWaited << " mins | Priority Score: " << req.dynamicScore << "\n";
     std::cout << "  Current Status:        " << req.status << "\n";
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
 
     // Check available units in stock (exact matches and compatible matches)
     std::vector<int> exactUnitIndices;
@@ -472,7 +459,7 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
         std::cout << "  Zero compatible blood units are currently available in the central repository.\n";
         std::cout << "  Patient Request #" << req.requestId << " will remain [Pending] in the urgency queue.\n";
         std::cout << "  Authority Recommendation: Use Directory Search (Feature 3) to contact potential donors.\n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         return;
     }
 
@@ -486,7 +473,7 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
 
         if (confirm != 'y' && confirm != 'Y') {
             std::cout << "  Action cancelled by Hospital Authority. Request remains Pending.\n";
-            std::cout << "=========================================================================================\n";
+            std::cout << "\n";
             return;
         }
 
@@ -516,9 +503,9 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
         // Remove from the urgency max-heap
         requestMaxHeap.removeById(req.requestId);
 
-        std::cout << "\n=========================================================================================\n";
+        std::cout << "\n";
         std::cout << ">>> [REQUEST ACCEPTED & BLOOD DISPENSED BY HOSPITAL AUTHORITY] <<<\n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "  Request ID:            #" << req.requestId << "\n";
         std::cout << "  Patient Name:          " << req.patientName << "\n";
         std::cout << "  Required Group:        " << bloodGroupToString(req.bloodGroup) << "\n";
@@ -527,7 +514,7 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
         std::cout << "  Request Status:        MARKED AS [DONE]\n";
         std::cout << "  Queue Update:          Removed from active triage queue.\n";
         std::cout << "  Hospital Authority:    Blood packets securely released and transferred to ward.\n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         return;
     }
 
@@ -571,7 +558,7 @@ void BloodBankSystem::acceptAndFulfillRequest(int targetReqId) {
     } else {
         std::cout << "  Request kept as Pending without changes.\n";
     }
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Auto-fulfill the highest priority request in the emergency queue
@@ -590,9 +577,9 @@ void BloodBankSystem::autoFulfillTopUrgentRequest() {
 
 // Auto-fulfill all pending requests that have matching units available in stock
 void BloodBankSystem::autoFulfillAllAvailableRequests() {
-    std::cout << "\n=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "       HOSPITAL AUTHORITY: BATCH AUTO-FULFILL PENDING REQUESTS BY STOCK                   \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 
     int fulfilledCount = 0;
     int unitsDispensedCount = 0;
@@ -637,26 +624,26 @@ void BloodBankSystem::autoFulfillAllAvailableRequests() {
         }
     }
 
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
     std::cout << "  Batch Fulfillment Finished:\n";
     std::cout << "  Total Requests Marked as [DONE] : " << fulfilledCount << "\n";
     std::cout << "  Total Blood Units Dispensed     : " << unitsDispensedCount << " unit(s)\n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Hospital Authority interactive request management workstation
 void BloodBankSystem::manageReceiverRequests() {
     int authChoice = -1;
     while (authChoice != 0) {
-        std::cout << "\n=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "               HOSPITAL AUTHORITY: RECEIVER REQUEST MANAGEMENT WORKSTATION               \n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "  [1] View All Active / Pending Receiver Requests & Live Stock Check\n";
         std::cout << "  [2] Accept & Dispense Next Most Urgent Request (From Priority Queue)\n";
         std::cout << "  [3] Accept & Dispense Specific Request by Request ID (Check Stock -> Mark DONE)\n";
         std::cout << "  [4] Batch Auto-Fulfill All Compatible Requests with Available Stock\n";
         std::cout << "  [0] Return to Hospital Authority Dashboard\n";
-        std::cout << "-----------------------------------------------------------------------------------------\n";
+        std::cout << "\n";
         std::cout << "  Enter choice [0-4]: ";
 
         if (!(std::cin >> authChoice)) {
@@ -668,7 +655,7 @@ void BloodBankSystem::manageReceiverRequests() {
 
         switch (authChoice) {
             case 1: {
-                std::cout << "\n------------------ ACTIVE PENDING PATIENT REQUESTS ------------------\n";
+                std::cout << "\n ACTIVE PENDING PATIENT REQUESTS \n";
                 std::cout << std::left 
                           << std::setw(8)  << "ReqID"
                           << std::setw(20) << "Patient Name"
@@ -678,7 +665,7 @@ void BloodBankSystem::manageReceiverRequests() {
                           << std::setw(12) << "Score"
                           << std::setw(16) << "Stock Status"
                           << "Request Status\n";
-                std::cout << "---------------------------------------------------------------------\n";
+                std::cout << "\n";
 
                 int pendingCount = 0;
                 for (const auto& r : bloodRequests) {
@@ -710,7 +697,7 @@ void BloodBankSystem::manageReceiverRequests() {
                 if (pendingCount == 0) {
                     std::cout << "  All requests are currently completed! No pending patient requests.\n";
                 }
-                std::cout << "---------------------------------------------------------------------\n";
+                std::cout << "\n";
                 break;
             }
             case 2:
@@ -740,10 +727,10 @@ void BloodBankSystem::manageReceiverRequests() {
 void BloodBankSystem::runHospitalDashboard() {
     int choice = -1;
     while (choice != 0) {
-        std::cout << "\n=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "               HOSPITAL CENTRAL WORKSTATION - HOSPITAL AUTHORITY DASHBOARD               \n";
         std::cout << "             [Central Operations, Patient Triage & Algorithmic Allocation]               \n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
         std::cout << "  Logged-in Authority: Authorized Hospital Staff (All Privileges Active)\n\n";
         std::cout << "  --- HOSPITAL AUTHORITY WORKFLOW & INVENTORY MANAGEMENT ---\n";
         std::cout << "  [1] Authority Action: Review & Accept Receiver Requests (Check Stock & Dispense -> Mark DONE)\n";
@@ -759,7 +746,7 @@ void BloodBankSystem::runHospitalDashboard() {
         std::cout << "  [9] View Hospital Appointments, Medical Tests & Donation Logs\n";
         std::cout << "  [10] Run Complete System Verification Test Suite\n";
         std::cout << "  [0] Logout & Return to Main Portal\n";
-        std::cout << "-----------------------------------------------------------------------------------------\n";
+        std::cout << "\n";
         std::cout << "  Enter choice [0-10]: ";
 
         if (!(std::cin >> choice)) {
@@ -866,9 +853,9 @@ void BloodBankSystem::searchDirectoryInteractive() {
 
 // Display all registered donors and health details
 void BloodBankSystem::displayAllDonorsWithHealth() const {
-    std::cout << "\n=========================================================================================\n";
-    std::cout << "               HOSPITAL RECORDS: REGISTERED DONORS & HEALTH EVALUATIONS                  \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
+    std::cout << "HOSPITAL RECORDS: REGISTERED DONORS & HEALTH EVALUATIONS\n";
+    std::cout << "\n";
     std::cout << std::left 
               << std::setw(8)  << "DonorID"
               << std::setw(22) << "Donor Name"
@@ -877,7 +864,7 @@ void BloodBankSystem::displayAllDonorsWithHealth() const {
               << std::setw(10) << "Status"
               << std::setw(16) << "Recent Surgery"
               << "Medications / Addiction\n";
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
 
     for (const auto& d : donors) {
         BloodGroup bg = BloodGroup::UNKNOWN;
@@ -906,14 +893,14 @@ void BloodBankSystem::displayAllDonorsWithHealth() const {
                   << std::setw(16) << (surg ? "YES" : "NO")
                   << (meds + " / " + addic) << "\n";
     }
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Display all receivers and transfusion requests
 void BloodBankSystem::displayAllReceiversAndRequests() const {
-    std::cout << "\n=========================================================================================\n";
-    std::cout << "               HOSPITAL RECORDS: PATIENT RECEIVERS & BLOOD REQUESTS                      \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
+    std::cout << "HOSPITAL RECORDS: PATIENT RECEIVERS & BLOOD REQUESTS \n";
+    std::cout << "\n";
     std::cout << std::left 
               << std::setw(8)  << "ReqID"
               << std::setw(22) << "Patient Name"
@@ -923,7 +910,7 @@ void BloodBankSystem::displayAllReceiversAndRequests() const {
               << std::setw(10) << "Wait(min)"
               << std::setw(12) << "Priority"
               << "Status\n";
-    std::cout << "-----------------------------------------------------------------------------------------\n";
+    std::cout << "\n";
 
     for (const auto& r : bloodRequests) {
         std::cout << std::left 
@@ -936,14 +923,14 @@ void BloodBankSystem::displayAllReceiversAndRequests() const {
                   << std::setw(12) << std::fixed << std::setprecision(1) << r.dynamicScore
                   << r.status << "\n";
     }
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Display overall system counts
 void BloodBankSystem::displayDatabaseStats() const {
-    std::cout << "\n=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "                 BLOOD BANK MANAGEMENT SYSTEM - DATABASE SUMMARY                         \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "  Users Registered:             " << users.size() << " (Donors & Requesters)\n";
     std::cout << "  Active Donors:                " << donors.size() << "\n";
     std::cout << "  Donor Health Evaluations:     " << healthRecords.size() << "\n";
@@ -955,12 +942,12 @@ void BloodBankSystem::displayDatabaseStats() const {
     std::cout << "  Recorded Blood Donations:     " << donations.size() << "\n";
     std::cout << "  Blood Units in Storage:       " << bloodUnits.size() << " units\n";
     std::cout << "  Patient Blood Requests:       " << bloodRequests.size() << " requests\n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
 }
 
 // Display blood units stored in inventory
 void BloodBankSystem::displayAllBloodUnits() const {
-    std::cout << "\n------------------ Central Blood Units Storage Inventory ------------------\n";
+    std::cout << "\nCentral Blood Units Storage Inventory\n";
     std::cout << std::left 
               << std::setw(8)  << "UnitID"
               << std::setw(16) << "Batch Number"
@@ -969,7 +956,7 @@ void BloodBankSystem::displayAllBloodUnits() const {
               << std::setw(14) << "Expiry"
               << std::setw(14) << "Test Status"
               << "Inventory Status\n";
-    std::cout << "---------------------------------------------------------------------------\n";
+    std::cout << "\n";
     for (const auto& u : bloodUnits) {
         std::cout << std::left 
                   << std::setw(8)  << u.unitId
@@ -984,7 +971,7 @@ void BloodBankSystem::displayAllBloodUnits() const {
 
 // Display past donation sessions
 void BloodBankSystem::displayAllDonations() const {
-    std::cout << "\n---------------------------- Blood Donation Logs ----------------------------\n";
+    std::cout << "\nBlood Donation Logs-\n";
     std::cout << std::left 
               << std::setw(12) << "DonationID"
               << std::setw(12) << "HospitalID"
@@ -993,7 +980,7 @@ void BloodBankSystem::displayAllDonations() const {
               << std::setw(10) << "Quality"
               << std::setw(14) << "Date"
               << "Screening Status\n";
-    std::cout << "-----------------------------------------------------------------------------\n";
+    std::cout << "\n";
     for (const auto& d : donations) {
         std::cout << std::left 
                   << std::setw(12) << d.donationId
@@ -1008,7 +995,7 @@ void BloodBankSystem::displayAllDonations() const {
 
 // Display appointments and medical tests
 void BloodBankSystem::displayAllAppointmentsAndTests() const {
-    std::cout << "\n------------------ Medical Tests & Donor Eligibility ------------------\n";
+    std::cout << "\nMedical Tests & Donor Eligibility\n";
     std::cout << std::left 
               << std::setw(8)  << "TestID"
               << std::setw(10) << "DonorID"
@@ -1016,7 +1003,7 @@ void BloodBankSystem::displayAllAppointmentsAndTests() const {
               << std::setw(12) << "Eligible?"
               << std::setw(28) << "Clinical Vitals / Result"
               << "Remarks\n";
-    std::cout << "-----------------------------------------------------------------------------\n";
+    std::cout << "\n";
     for (const auto& t : medicalTests) {
         std::cout << std::left 
                   << std::setw(8)  << t.testId
@@ -1058,7 +1045,7 @@ void BloodBankSystem::runMaxLifeSavingEdmondsKarpDemo() {
         }
     }
 
-    std::cout << "\n--- Available Blood Bank Inventory for Allocation ---\n";
+    std::cout << "\nAvailable Blood Bank Inventory for Allocation\n";
     for (const auto& item : inventory) {
         std::cout << "  " << std::setw(6) << bloodGroupToString(item.first) 
                   << ": " << item.second << " units\n";
@@ -1140,9 +1127,9 @@ void BloodBankSystem::runHeapInteractiveDemo() {
 }
 
 void BloodBankSystem::runTrieAutocompleteDemo() {
-    std::cout << "\n=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "             FEATURE 3: TRIE DIRECTORY AUTOCOMPLETE & PREFIX SEARCH                      \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
     
     std::vector<std::string> samplePrefixes = {"aa", "dr", "sa", "ru", "po", "red"};
     for (const auto& p : samplePrefixes) {
@@ -1151,9 +1138,9 @@ void BloodBankSystem::runTrieAutocompleteDemo() {
 }
 
 void BloodBankSystem::runAllADSTests() {
-    std::cout << "\n=========================================================================================\n";
+    std::cout << "\n";
     std::cout << "          COMPREHENSIVE ADVANCED DATA STRUCTURES (ADS) VERIFICATION TEST                 \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
     
     std::cout << "\n[TEST 1] Testing Dynamic Priority Max-Heap:\n";
     requestMaxHeap.printHeapTable();

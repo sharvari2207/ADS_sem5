@@ -1,25 +1,4 @@
-/**
- * =========================================================================================
- * FEATURE 2: Max Life Saving Blood Allocation using Edmonds-Karp Max-Flow Algorithm
- * Maximum flow optimization for patient blood transfusion allocation
- * Solves compatibility flow network to save the maximum number of lives
- * =========================================================================================
- * 
- * Key Concepts:
- * 1. Bipartite Compatibility Flow Network:
- *      Source (S) -> Blood Types in Blood Bank Inventory (8 nodes: O-, O+, A-, A+, B-, B+, AB-, AB+)
- *      Blood Types -> Compatible Patient Requests (based on ABO/Rh medical compatibility)
- *      Patient Requests -> Sink (T) (capacity = quantity demanded)
- * 2. Edmonds-Karp Algorithm:
- *      - Implements Ford-Fulkerson using Breadth-First Search (BFS) to find augmenting paths.
- *      - Time Complexity: O(V * E^2).
- * 3. Life-Saving Guarantee:
- *      - Naive greedy allocation wastes universal donor blood (O-) on recipients who could
- *        accept other types (e.g., A+ or AB+), leading to death for rare O- patients.
- *      - Edmonds-Karp pushes flow along residual augmenting paths, automatically re-routing
- *        allocations to maximize the total number of patients saved!
- * =========================================================================================
- */
+
 
 #include <iostream>
 #include <vector>
@@ -224,9 +203,8 @@ public:
         std::cout << "\n>>> Total Maximum Life Saving Flow Achieved: " << maxFlow << " units allocated.\n";
 
         // Display Detailed Allocation Report
-        std::cout << "\n=========================================================================================\n";
-        std::cout << "                    OPTIMAL LIFE-SAVING PATIENT ALLOCATION REPORT                        \n";
-        std::cout << "=========================================================================================\n";
+        std::cout << "\n";
+        std::cout << "OPTIMAL LIFE-SAVING PATIENT ALLOCATION REPORT\n";
         std::cout << std::left 
                   << std::setw(8)  << "ReqID"
                   << std::setw(25) << "Patient Name"
@@ -235,7 +213,7 @@ public:
                   << std::setw(10) << "Allocated"
                   << std::setw(14) << "Status"
                   << "Donor Unit Breakdown\n";
-        std::cout << "-----------------------------------------------------------------------------------------\n";
+        std::cout << "\n";
 
         for (const auto& p : patients) {
             int v = reqToNode[p.requestId];
@@ -263,14 +241,13 @@ public:
                       << std::setw(14) << status
                       << breakdown << "\n";
         }
-        std::cout << "=========================================================================================\n";
     }
 };
 
 int main() {
-    std::cout << "=======================================================================\n";
+    std::cout << "\n";
     std::cout << "   FEATURE 2 DEMO: EDMONDS-KARP MAX LIFE SAVING BLOOD ALLOCATION       \n";
-    std::cout << "=======================================================================\n";
+    std::cout << "\n";
 
     // Blood bank inventory
     std::map<BloodGroup, int> inventory = {
@@ -306,7 +283,7 @@ int main() {
     EdmondsKarpBloodAllocator solver;
     solver.solve(inventory, requests);
 
-    std::cout << "\n>>> Feature 2 Demo Complete! <<<\n";
+    std::cout << "\nFeature 2 Demo Complete!\n";
     return 0;
 }
 

@@ -172,9 +172,9 @@ bool BloodRequestHeap::addWaitTime(int requestId, int additionalMinutes) {
 
 // Display current queue table
 void BloodRequestHeap::printHeapTable() const {
-    std::cout << "\n=========================================================================================\n";
-    std::cout << "                          CURRENT URGENCY PRIORITY QUEUE                                 \n";
-    std::cout << "=========================================================================================\n";
+    std::cout << "\n";
+    std::cout << "CURRENT URGENCY PRIORITY QUEUE\n";
+    std::cout << "\n";
     std::cout << std::left 
               << std::setw(5)  << "Pos"
               << std::setw(8)  << "ReqID"
@@ -185,7 +185,6 @@ void BloodRequestHeap::printHeapTable() const {
               << std::setw(10) << "Wait(min)"
               << std::setw(8)  << "ICU/Age"
               << std::setw(12) << "Priority" << "\n";
-    std::cout << "-----------------------------------------------------------------------------------------\n";
 
     for (size_t i = 0; i < heap.size(); ++i) {
         const auto& r = heap[i];
@@ -201,7 +200,6 @@ void BloodRequestHeap::printHeapTable() const {
               << std::setw(8)  << extraInfo
               << std::setw(12) << std::fixed << std::setprecision(1) << r.dynamicScore << "\n";
     }
-    std::cout << "=========================================================================================\n";
 }
 
 // Print tree representation of the binary max-heap
